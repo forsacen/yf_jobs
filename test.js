@@ -1,6 +1,6 @@
 const https=require('https')
 const url=require('url')
-const Jobs=require('./index')
+const Jobs=require('../jobs')
 let jobs=new Jobs({limit:2,callback:(option,done)=>{
         var options = url.parse(option.url)
         const req = https.request(options, (res) => {
