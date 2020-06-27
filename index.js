@@ -1,6 +1,5 @@
 const EventEmitter = require('events').EventEmitter
 const util=require('util')
-const https=require('https')
 function jobs(opt){
     EventEmitter.call(this)
     this.pool=[]
@@ -42,31 +41,3 @@ jobs.prototype._done=function(){
 }
 
 module.exports=jobs
-const url=require('url')
-let r=new jobs({limit:2,callback:(option,done)=>{
-        var options = url.parse(option.url)
-        const req = https.request(options, (res) => {
-            console.log(`状态码: ${res.statusCode}`)
-            let body=''
-            res.on('data', (chunk) => {
-                body+=chunk
-            })
-            res.on('end', () => {
-                //console.log(body)
-                console.log(option.url)
-                done()
-            })
-        })
-        req.on('error', (e) => {
-            console.error(`请求遇到问题: ${e.message}`)
-            done()
-        })
-        req.end();
-}})
-r.on('drain',()=>{
-    console.log('drain')
-})
-r.queue({url:'https://www.sina.com'})
-r.queue({url:'https://www.baidu.com'})
-r.queue({url:'https://www.qq.com'})
-r.queue({url:'https://www.163.com'})

@@ -8,7 +8,7 @@ jobs:constructor
     jobs=new Jobs(option)
         option:object 
         opiton.limiter:number 最多同时做多少个工作,0为不限
-        option.callback:function(option,done) 做的工作,option就是queue放进去的数据,done是传过来的内置函数,工作完成后必须调用done函数
+        option.callback:function(option,done) 工作对应的函数,option就是queue放进去的数据,done是传过来的内置函数,工作完成后必须调用done函数
                         
 jobs:method
 
