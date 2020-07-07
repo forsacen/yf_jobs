@@ -18,6 +18,9 @@ jobs:method
     jobs.queueSize() reuturn number
         工作队列长度,就是还未从队列中取出的工作的数量,read-only
         
+    jobs.jobSize() return number
+        正在执行的工作的数量,read-only
+        
         
 jobs:event
 
