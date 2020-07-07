@@ -36,7 +36,7 @@ jobs.prototype._done=function(){
 }
 
 jobs.prototype._schedule=async function(){
-    if(this.pool.length>0 && ((this.opt.limit>0 && this.count<this.opt.limit)||!this.opt.limit)){
+    if(this.pool.length>0 && ((this.opt.limit>0 && this.count<this.opt.limit)||this.opt.limit===0)){
         this.count++
         let data=this.pool.shift()
         if(this.opt.callback&&typeof this.opt.callback=='function'){
