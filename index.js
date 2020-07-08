@@ -6,9 +6,6 @@ function jobs(opt){
     this.count=0
     this.opt=opt
     this.done=this._done.bind(this)
-    this.on('schedule',async ()=>{
-
-    })
 }
 
 util.inherits(jobs,EventEmitter)
