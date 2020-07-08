@@ -1,7 +1,6 @@
 const EventEmitter = require('events').EventEmitter
 const util=require('util')
 function jobs(opt){
-    EventEmitter.call(this)
     this.pool=[]
     this.count=0
     this.opt=opt
