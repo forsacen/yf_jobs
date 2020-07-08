@@ -13,7 +13,7 @@ jobs:constructor
 jobs:method
 
     jobs.queue(option) reuturn null
-        option:object 添加的数据,如果new jobs的option里包含callback,该option会作为参数传给callback
+        option:object 添加的数据
 
     jobs.queueSize() reuturn number
         工作队列长度,就是还未从队列中取出的工作的数量,read-only
@@ -24,6 +24,13 @@ jobs:method
         
 jobs:event
 
+    Event: 'schedule',任务开始之前触发,参数option,此时可以修改option做参数调整(option为
+    object 时候才会生效)
+    
+    jobs.on('schedule',function(option){
+        option.proxy='socks5://127.0.0.1:1080'
+    })
+    
     Event: 'drain',所有任务完成的时候触发
     jobs.on('drain',function(){
         console.log('all jobs done')

@@ -39,6 +39,7 @@ jobs.prototype._schedule=async function(){
     if(this.pool.length>0 && ((this.opt.limit>0 && this.count<this.opt.limit)||this.opt.limit===0)){
         this.count++
         let data=this.pool.shift()
+        this.emit('schedule',data)
         if(this.opt.callback&&typeof this.opt.callback=='function'){
             this.opt.callback(data,this.done)
         }else{
