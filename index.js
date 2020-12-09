@@ -52,7 +52,7 @@ jobs.prototype._schedule=async function(){
     if(this.pool.length>0 && ((this.opt.limit>0 && this.count<this.opt.limit)||!this.opt.limit)){
         this.count++
         let data=this.pool.shift()
-        if(this.opt.maxSize>0&&this.resolves.length>0){
+        if(this.resolves.length>0){
             this.resolves.shift()()
         }
         this.emit('schedule',data)
