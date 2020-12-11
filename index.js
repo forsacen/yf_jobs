@@ -3,6 +3,7 @@ const util=require('util')
 function jobs(opt){
     this.pool=[]
     this.resolves=[]
+    this.freeWatcher=[]
     this.count=0
     this.opt=opt
     if(!this.opt.limit){
@@ -39,10 +40,29 @@ jobs.prototype.jobSize=function(){
     return this.count
 }
 
+jobs.prototype.isFree=function(){
+    return this.pool.length===0 && this.count===0
+}
+
+jobs.prototype.watchFree=function(){
+    if(this.pool.length===0 && this.count===0){
+        return new Promise(function (resolve) {
+            resolve()
+        })
+    }else{
+        return new Promise((resolve)=> {
+            this.freeWatcher.push(resolve)
+        })
+    }
+}
+
 jobs.prototype._done=function(){
     this.count--
     if(this.count===0 && this.pool.length===0){
         this.emit('drain')
+        while(this.freeWatcher.length>0){
+            this.freeWatcher.shift()()
+        }
     }else{
         this._schedule()
     }
