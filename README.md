@@ -31,11 +31,12 @@ jobs:method
 jobs:event
 
     Event: 'schedule',任务开始之前触发,参数option,此时可以修改option做参数调整(option为
-    object 时候才会生效)
+        object 时候才会生效)
     
-    jobs.on('schedule',function(option){
-        option.proxy='socks5://127.0.0.1:1080'
-    })
+        使用方式为:
+        jobs.on('schedule',function(option){
+            option.proxy='socks5://127.0.0.1:1080'
+        })
     
     Event: 'scheduleSync',任务开始之前触发,参数option,此时可以修改option做参数调整(option为
         object 时候才会生效),
