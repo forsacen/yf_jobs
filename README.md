@@ -46,9 +46,6 @@ jobs:event
             done()//该函数调用后 await该函数将返回
         }
         
-    jobs.on('schedule',function(option){
-            option.proxy='socks5://127.0.0.1:1080'
-    })
     
     Event: 'drain',所有任务完成的时候触发
     jobs.on('drain',function(){
