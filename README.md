@@ -28,15 +28,20 @@ jobs:method
     jobs.isFree() return bool
         jobs是否处于空闲状态,(工作队列长度为0,正在执行的工作数量为0)
         
+    jobs.watchHaseFree() return promise,监控jobs是否有空闲(工作队列长度为0.正在执行
+    的数量小于limit),有空闲时await该方法将返回(await jobs.watchHasFree())
+        
+    jobs.hasFree() return bool
+        jobs是否有空闲,(工作队列长度为0.正在执行的数量小于limit)
+        
 jobs:event
 
     Event: 'schedule',任务开始之前触发,参数option,此时可以修改option做参数调整(option为
-        object 时候才会生效)
+    object 时候才会生效)
     
-        使用方式为:
-        jobs.on('schedule',function(option){
-            option.proxy='socks5://127.0.0.1:1080'
-        })
+    jobs.on('schedule',function(option){
+        option.proxy='socks5://127.0.0.1:1080'
+    })
     
     Event: 'scheduleSync',任务开始之前触发,参数option,此时可以修改option做参数调整(option为
         object 时候才会生效),
@@ -47,6 +52,9 @@ jobs:event
             done()//该函数调用后 await该函数将返回
         }
         
+    jobs.on('schedule',function(option){
+            option.proxy='socks5://127.0.0.1:1080'
+    })
     
     Event: 'drain',所有任务完成的时候触发
     jobs.on('drain',function(){
