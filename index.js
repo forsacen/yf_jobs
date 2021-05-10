@@ -1,17 +1,15 @@
 const EventEmitter = require('events').EventEmitter
 const util=require('util')
+
+EventEmitter.prototype.onAsync=EventEmitter.prototype.on
 function jobs(opt){
     this.pool=[]
     this.resolves=[]
     this.freeWatcher=[]
-    this.hasFreeWatcher=[]
     this.count=0
     this.opt=opt
     if(!this.opt.limit){
         this.opt.limit=0
-    }
-    if(!this.opt.maxSize){
-        this.opt.maxSize=0
     }
     this.done=this._done.bind(this)
 }
@@ -21,11 +19,8 @@ util.inherits(jobs,EventEmitter)
 jobs.prototype.queue=function(data){
     let self=this
     self.pool.push(data)
-    self._schedule()
-    if(self.opt.maxSize===0||self.pool.length<=self.opt.maxSize){
-        return new Promise(function (resolve) {
-            resolve()
-        })
+    if(self.opt.limit===0||self.count<this.opt.limit){
+        return self._schedule()
     }else{
         return new Promise((function (resolve) {
             self.resolves.push(resolve)
@@ -33,12 +28,6 @@ jobs.prototype.queue=function(data){
     }
 }
 
-jobs.prototype.safeQueue=function(data){
-    let self=this
-    self.pool.push(data)
-    self._schedule()
-    return this.watchHasFree()
-}
 
 jobs.prototype.queueSize=function(){
     return this.pool.length
@@ -64,44 +53,15 @@ jobs.prototype.watchFree=function(){
     }
 }
 
-jobs.prototype.hasFree=function(){
-    return this.opt.limit===0||(this.count<this.opt.limit&&this.pool.length===0)
-}
-
-jobs.prototype.watchHasFree=function(){
-    if(this.hasFree()){
-        return new Promise(function (resolve) {
-            resolve()
-        })
-    }else{
-        return new Promise((resolve)=> {
-            this.hasFreeWatcher.push(resolve)
-        })
-    }
-}
-
 jobs.prototype._done=function(){
     this.count--
-    if(this.hasFree()&&this.hasFreeWatcher.length>0){
-        this.hasFreeWatcher.shift()()
-    }
-    if(this.count===0 && this.pool.length===0){
-        this.emit('drain')
-        while(this.freeWatcher.length>0){
-            this.freeWatcher.shift()()
-        }
-    }else{
-        this._schedule()
-    }
+    return this._schedule()
 }
 
 jobs.prototype._schedule=async function(){
-    if(this.pool.length>0 && ((this.opt.limit>0 && this.count<this.opt.limit)||!this.opt.limit)){
+    if((this.opt.limit===0||this.count<this.opt.limit)&&this.pool.length>0){
         this.count++
         let data=this.pool.shift()
-        if(this.resolves.length>0){
-            this.resolves.shift()()
-        }
         this.emit('schedule',data)
         await this.emitAsync('scheduleSync',data)
         if(this.opt.callback&&typeof this.opt.callback=='function'){
@@ -109,7 +69,35 @@ jobs.prototype._schedule=async function(){
         }else{
             this.done()
         }
+    }else if(this.resolves.length>0){
+        this.resolves.shift()()
+        return this._schedule()
+    }else if(this.count===0 && this.pool.length===0){
+        this.emit('drain')
+        while(this.freeWatcher.length>0){
+            this.freeWatcher.shift()()
+        }
     }
+}
+
+jobs.prototype.emitAsync=function(event,...args){
+    return new Promise((resolve)=>{
+        if(this._events&&this._events[event]){
+            if(typeof this._events[event]==='function'){
+                this.emit(event,resolve,...args)
+            }else{
+                let count=this._events[event].length
+                this.emit(event,()=>{
+                    count--
+                    if(count===0){
+                        resolve()
+                    }
+                },...args)
+            }
+        }else{
+            resolve()
+        }
+    })
 }
 
 module.exports=jobs
